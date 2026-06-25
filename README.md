@@ -2,11 +2,13 @@
 
 **High-efficiency, security-hardened Lodash alternative.**
 
-Zero dependencies. Fully tree-shakeable. 150+ utility functions covering Array, Collection, Function, Lang, Math, Object, String, and Util categories.
+Zero dependencies. Fully tree-shakeable. 231 utility functions covering Array, Collection, Function, Lang, Math, Object, String, and Util categories.
 
 ```bash
-npm install helios
+npm install @apithy-edson-gomez/helios
 ```
+
+📖 **Documentation**: [`docs/`](docs/) — [Overview](docs/v1.0/overview) · [Array](docs/v1.0/Array) · [Collection](docs/v1.0/Collection) · [Function](docs/v1.0/Function) · [Lang](docs/v1.0/Lang) · [Math](docs/v1.0/Math) · [Object](docs/v1.0/Object) · [String](docs/v1.0/String) · [Util](docs/v1.0/Util) · [Security](docs/v1.0/Security)
 
 ## Why Helios?
 
