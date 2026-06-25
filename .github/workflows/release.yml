@@ -211,3 +211,54 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_REGISTRY: https://npm.pkg.github.com
+
+  docs-version:
+    name: Version docs
+    runs-on: ubuntu-latest
+    needs: [prepare, release]
+    if: ${{ needs.prepare.outputs.prerelease == 'false' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set git identity
+        run: |
+          git config user.name "Edson Gomez"
+          git config user.email "apithy-edson-gomez@noreply.github.com"
+
+      - name: Create versioned docs
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          VER_DIR="docs/v$VERSION"
+          LATEST_DIR="docs/v1.0"  # use v1.0 as template (first version)
+
+          if [ -d "$VER_DIR" ]; then
+            echo "Docs for v$VERSION already exist — skipping"
+            exit 0
+          fi
+
+          # Copy latest docs as template
+          cp -r "$LATEST_DIR" "$VER_DIR"
+
+          # Update versioned index title
+          sed -i "s/^title:.*/title: Helios v$VERSION/" "$VER_DIR/index.md"
+
+          # Add to root version picker
+          # Find the version table lines and insert new row
+          LINE=$(grep -n "^| Version" docs/index.md | head -1 | cut -d: -f1)
+          if [ -n "$LINE" ]; then
+            # Insert before the first table row after the header
+            INSERT_AT=$((LINE + 2))
+            sed -i "${INSERT_AT}i| [v$VERSION](v$VERSION/) | Current release |" docs/index.md
+          fi
+
+          # Update latest redirect
+          python3 -c "import os; v='$VERSION'; open('docs/latest.html','w').write('<!DOCTYPE html>\\n<html>\\n<head>\\n  <meta http-equiv=\\\"refresh\\\" content=\\\"0; url=/helios/v'+v+'/\\\" />\\n  <link rel=\\\"canonical\\\" href=\\\"/helios/v'+v+'/\\\" />\\n</head>\\n<body>\\n  <p>Redirecting to <a href=\\\"/helios/v'+v+'/\\\">latest docs</a>...</p>\\n</body>\\n</html>\\n')"
+
+      - name: Commit and push docs
+        run: |
+          git add docs/
+          git commit -m "docs: version $VERSION documentation" || echo "No changes to commit"
+          git push origin main
+
