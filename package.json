@@ -1,11 +1,18 @@
 {
-  "name": "helios",
+  "name": "@apithy-edson-gomez/helios",
   "version": "1.0.0",
   "description": "High-efficiency, security-hardened Lodash alternative for modern JavaScript",
   "main": "dist/helios.cjs",
   "module": "dist/helios.mjs",
   "types": "dist/index.d.ts",
   "sideEffects": false,
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/apithy-edson-gomez/helios.git"
+  },
   "scripts": {
     "build": "tsc --sourceMap false --declarationMap false --removeComments true && npm run bundle",
     "bundle": "esbuild src/index.ts --bundle --format=esm --minify --outfile=dist/helios.mjs && esbuild src/index.ts --bundle --format=cjs --minify --outfile=dist/helios.cjs",
@@ -22,7 +29,7 @@
     "zero-dependency",
     "typescript"
   ],
-  "author": "",
+  "author": "Edson Gomez",
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "^29.5.0",
