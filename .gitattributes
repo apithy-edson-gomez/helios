@@ -1,0 +1,14 @@
+# Normalize line endings
+* text=auto eol=lf
+
+# Source files
+*.ts text
+*.js text
+*.json text
+*.yml text
+*.yaml text
+*.md text
+
+# Binary files
+*.png binary
+*.ico binary

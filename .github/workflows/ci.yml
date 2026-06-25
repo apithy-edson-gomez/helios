@@ -1,0 +1,97 @@
+# CI/CD for Helios — high-efficiency Lodash alternative
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [18, 20, 22]
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm test
+        env:
+          CI: true
+
+      - name: Upload coverage
+        if: matrix.node == 22
+        run: npx jest --coverage --ci --silent
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - name: Verify bundle
+        run: |
+          node -e "
+            const assert = require('assert');
+            const h = require('./dist/helios.cjs');
+            const count = Object.keys(h).length;
+            console.log('Exports:', count);
+            assert.ok(count >= 200, 'Expected >=200 exports, got ' + count);
+          "
+
+      - name: Check bundle size
+        run: |
+          MAX_KB=50
+          SIZE=$(wc -c < dist/helios.mjs)
+          KB=$((SIZE / 1024))
+          echo "helios.mjs: ${SIZE} bytes (${KB} KB)"
+          if [ $KB -gt $MAX_KB ]; then
+            echo "FAIL: Bundle exceeds ${MAX_KB} KB (${KB} KB)"
+            exit 1
+          fi
+          echo "PASS: Bundle under ${MAX_KB} KB"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  lint:
+    name: TypeScript check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit

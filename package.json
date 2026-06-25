@@ -1,0 +1,35 @@
+{
+  "name": "helios",
+  "version": "1.0.0",
+  "description": "High-efficiency, security-hardened Lodash alternative for modern JavaScript",
+  "main": "dist/helios.cjs",
+  "module": "dist/helios.mjs",
+  "types": "dist/index.d.ts",
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc --sourceMap false --declarationMap false --removeComments true && npm run bundle",
+    "bundle": "esbuild src/index.ts --bundle --format=esm --minify --outfile=dist/helios.mjs && esbuild src/index.ts --bundle --format=cjs --minify --outfile=dist/helios.cjs",
+    "test": "jest --verbose",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "keywords": [
+    "lodash",
+    "utility",
+    "security",
+    "high-performance",
+    "zero-dependency",
+    "typescript"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "esbuild": "^0.28.1",
+    "jest": "^29.5.0",
+    "terser": "^5.48.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.0"
+  }
+}
